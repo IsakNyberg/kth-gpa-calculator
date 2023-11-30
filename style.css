@@ -1,0 +1,44 @@
+/* Basic styling for the page */
+body {
+    background-color: #f4f4f4;
+}
+
+#file-upload-container {
+    text-align: center;
+}
+
+#file-upload-input {
+    margin-bottom: 20px;
+}
+
+#file-result {
+    display: none;
+}
+
+.course-table {
+    margin: 0 auto;
+    width: 80%;
+}
+
+.table-name {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.table-scope {
+    font-style: italic;
+    text-align: center;
+    font-size: 1.2em;
+}
+
+.table-grade {
+    font-weight: bold;
+    text-align: center;
+    font-size: 1.2em;
+}
+
+.table-date {
+    font-style: italic;
+    text-align: center;
+    font-size: 1.0em;
+}
