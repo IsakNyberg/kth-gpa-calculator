@@ -412,6 +412,16 @@ function sortTable(courses, headerText) {
 function add_fail_text() {
   let div = document.getElementById('error-text');
   div.classList.add("calculator-box");
-  div.innerHTML = "Failed to parse courses from pdf. Please check that the pdf is in the correct format and try again. \
-  Make sure the type is 'Official transcript of records' and the language is 'English', do not check any checkbox under the 'Include' section.";
+  div.innerHTML = "Failed to parse courses from pdf. Please check that the pdf is in the correct format and try again. Make sure the type is 'Official transcript of records' and the language is 'English', do not check any checkbox under the 'Include' section.".replace(/'(.*?)'/g, '<i>$1</i>');
+  // make the div flash red
+  div.style.backgroundColor = "#FAA0A0"
+  setTimeout(function () {
+    div.style.backgroundColor = "white";
+  }, 200);
+  setTimeout(function () {
+    div.style.backgroundColor = "#FAA0A0"
+  }, 400);
+  setTimeout(function () {
+    div.style.backgroundColor = "white";
+  }, 600);
 }
