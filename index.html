@@ -8,19 +8,28 @@
 </head>
 
 <body>
-    <!-- File upload input -->
-    <input type="file" id="file-upload-input">
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.6.347/build/pdf.min.js"></script>
+  <script type="module" src="script.js"></script>
+  
+  <div style="display: row; justify-content: center;">
+    <div class="calculator-box">
+      Calculate average GPA at KTH without having to give you ladok login to anyone. 
+      Just upload your grade report as a pdf and you will get your average grade.
+    
+      You can add courses, and change existing grades, if you want to simulate a result.
 
-    <!-- Load script.js as a module -->
+      <div id="fileUploader" class="uploader">
+        <label for="fileInput">Upload Grade Report</label>
+        <input type="file" id="fileInput" style="display: none;">
+      </div> 
+      <div id="error-text"></div>
+    </div>
+    
+    
 
-    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.6.347/build/pdf.min.js"></script>
-
-    <script type="module" src="script.js"></script>
-
-    <div id="courses-container"></div>
-    <div id="total-credits"></div>
-    <div id="counted-credits"></div>
-    <div id="gpa"></div>
+    <div id="courses-container" style="display: flex; justify-content: center;"></div>
+  </div>
+    
 </body>
 
 </html>

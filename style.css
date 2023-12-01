@@ -1,44 +1,170 @@
-/* Basic styling for the page */
+/* styles.css */
+
+/* Updated color palette */
 body {
-    background-color: #f4f4f4;
+    background-color: #eeeeee; /* Lighter background */
+    font-family: Arial, sans-serif;
+    color: #222831; /* Dark text color for all text */
 }
 
-#file-upload-container {
-    text-align: center;
+.uploader {
+    border: 2px solid #1a4789;
+    padding: 20px;
+    display: flex;
+    align-items: center; /* Vertically align items */
+    justify-content: center; /* Horizontally center items */
+    font-size: 24px;
+    width: 400px;
+    height: 200px;
+    margin: 50px auto;
+    background-color: #eeeeee; /* Lighter background */
+    color: #676464; /* Text color */
 }
 
-#file-upload-input {
-    margin-bottom: 20px;
+.uploader.dragover {
+    border-color: #00adb5;
 }
-
-#file-result {
-    display: none;
-}
-
 .course-table {
-    margin: 0 auto;
-    width: 80%;
+    background-color: #fff;
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    min-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+.course-table thead tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: left;
 }
 
 .table-name {
     font-weight: bold;
     font-size: 1.2em;
+    color: #516091;
 }
 
 .table-scope {
     font-style: italic;
     text-align: center;
     font-size: 1.2em;
+    color: #74BEC1;
+    min-width: 100px;
 }
 
 .table-grade {
     font-weight: bold;
     text-align: center;
     font-size: 1.2em;
+    color: #ADEBBE;
 }
 
 .table-date {
     font-style: italic;
     text-align: center;
     font-size: 1.0em;
+    color: #6d6d6d;
+}
+
+.course-table th,
+.course-table td {
+    border: 1px solid #ccc;
+    padding: 12px 15px;
+    color: #222831;
+}
+
+.dcourse-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.dcourse-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.dcourse-table tbody tr:last-of-type {
+    border-bottom: 2px solid #009879;
+}
+.dcourse-table tbody tr.active-row {
+    font-weight: bold;
+    color: #009879;
+}
+
+.course-table th {
+    background-color: #eeeeee;
+    color: #222831;
+}
+
+.course-table tr:hover {
+    background-color: #d3d3d3; /* Lighter background on hover */
+    color: #222831;
+}
+
+/* Adjustments for rounded corners on table rows */
+.course-table tr:first-child td {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.course-table tr:last-child td {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.table-checkbox {
+    text-align: center;
+    vertical-align: middle;
+  }
+  
+.table-checkbox input[type="checkbox"] {
+    background-color: #1a4789;
+    transform: scale(1.5); /* Increase checkbox size */
+}
+
+/* Style for disabled checkbox */
+.table-checkbox input[type="checkbox"]:disabled {
+    background-color: #1a4789;
+    opacity: 0.5; /* Reduce opacity to indicate disabled state */
+}
+.table-checkbox input[type="checkbox"]:checked  {
+    background-color: #1a4789; /* Checked color */
+    /* Add other styles for the checked state */
+}
+
+
+.calculator-box {
+    width: 80%;
+    max-width: 600px; /* Set a maximum width for responsiveness */
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff; /* White background */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
+    text-align: center; /* Center align text */
+    font-family: Arial, sans-serif; /* Set a font */
+    line-height: 1.5; /* Improved readability */
+  }
+  
+.add-course-butt {
+    background-color: #1a4789;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.recalculate-button {
+    background-color: #1a4789;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
 }
