@@ -47,14 +47,14 @@ function parse_pdf(pdf) {
   }
 
   return Promise.all(promises).then(function (pages) {
-    const collapsedResult = pages.reduce((acc, value) => acc.concat(value), []);
-    if (collapsedResult.length == 0) {
+    var courses = pages.reduce((acc, value) => acc.concat(value), []);
+    if (courses.length == 0) {
       console.log("No courses found");
       add_fail_text();
       return;
     }
-    display_courses(collapsedResult);
-    display_gpa(collapsedResult);
+    display_courses(courses);
+    display_gpa(courses);
   });
 }
 function parse_page(page) {
@@ -63,14 +63,9 @@ function parse_page(page) {
       let table_headers = ["name", "scope", "grade", "date", "note"]
       let courses = []
       for (let item of textContent.items) {
-
-        if (
-          table_headers.length == 0 &&
-          item.height == 10
-        ) {
+        if (table_headers.length == 0 && item.height == 10) {
           courses.push(item)
         }
-
         if (item.str.toLowerCase() == table_headers[0]) {
           table_headers.shift();
         }
@@ -110,7 +105,7 @@ function parse_page(page) {
         objects.push({
           id: counter,
           name: item[0].str,
-          scope: item[1].str,
+          scope: parseFloat(item[1].str.replace(',', '.')),
           grade: item[3].str,
           is_graded: ["A", "B", "C", "D", "E", "Fx", "F"].includes(item[3].str),
           is_included: ["A", "B", "C", "D", "E", "Fx", "F"].includes(item[3].str),
@@ -142,6 +137,9 @@ function display_courses(courses) {
   const headerRow = document.createElement('tr');
   headers.forEach(headerText => {
     const headerCell = document.createElement('th');
+    headerCell.onclick = function () {
+      sortTable(courses, headerText);
+    }
     headerCell.textContent = headerText;
     headerRow.appendChild(headerCell);
   });
@@ -244,7 +242,6 @@ function add_course(courses) {
     display_gpa(courses);
   }
 
-  
   const checkboxCell = document.createElement('td');
   const checkbox = document.createElement('input');
   checkbox.type = "checkbox";
@@ -290,7 +287,6 @@ function add_course(courses) {
   
 }
 
-
 function display_gpa(courses) {
   console.log("Calculating gpa for courses:", courses);
   let total_credits = 0;
@@ -307,7 +303,7 @@ function display_gpa(courses) {
     "F": 0,
   }
   for (let course of courses) {
-    let credits = parseFloat(course.scope.replace(',', '.'));
+    let credits = parseFloat(course["scope"]);
     if (isNaN(credits)) {
       console.log("Unknown scope:", course);
       continue;
@@ -367,6 +363,50 @@ function display_gpa(courses) {
   row.appendChild(dateCell);
   table.appendChild(row);
 
+}
+
+var previousSort = null;
+function sortTable(courses, headerText) {
+  let index = 0;
+  switch (headerText) {
+    case "Id":
+      index = "id";
+      break;
+    case "Course name":
+      index = "name";
+      break;
+    case "Scope":
+      index = "scope";
+      break;
+    case "Grade":
+      index = "grade";
+      break;
+    case "Date":
+      index = "date";
+      break;
+    case "Include":
+      index = "is_included";
+      break;
+    default:
+      console.log("Unknown header text:", headerText);
+      return;
+  }
+  courses.sort(function (a, b) {
+    if (a[index] < b[index]) {
+      return -1;
+    }
+    if (a[index] > b[index]) {
+      return 1;
+    }
+    return 0;
+  });
+  if (previousSort == index) {
+    courses.reverse();
+  }
+  previousSort = index;
+  console.log("Sorting table by:", headerText, courses );
+  display_courses(courses);
+  display_gpa(courses);
 }
 
 function add_fail_text() {
