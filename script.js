@@ -24,9 +24,6 @@ fileInput.addEventListener('change', (e) => {
   upload_file(file);
 });
 
-
-
-
 function upload_file(file) {
   var pdfjsLib = window['pdfjs-dist/build/pdf'];
   pdfjsLib.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.6.347/build/pdf.worker.js';
@@ -49,8 +46,15 @@ function parse_pdf(pdf) {
     );
   }
 
-  return Promise.all(promises).then(function (texts) {
-    return console.log(texts.join(''));
+  return Promise.all(promises).then(function (pages) {
+    const collapsedResult = pages.reduce((acc, value) => acc.concat(value), []);
+    if (collapsedResult.length == 0) {
+      console.log("No courses found");
+      add_fail_text();
+      return;
+    }
+    display_courses(collapsedResult);
+    display_gpa(collapsedResult);
   });
 }
 function parse_page(page) {
@@ -95,9 +99,6 @@ function parse_page(page) {
           console.log('Item with length != 6 found:', groupedItems[key]);
         }
       }
-      if (filteredItems.length == 0) {
-        throw 'No courses found';
-      }
       return filteredItems;
     })
     .then(function (filteredItems) {
@@ -120,8 +121,6 @@ function parse_page(page) {
       console.log("coureses found:", objects);
       return objects;
     })
-    .then(display_courses)
-    .then(display_gpa)
     .catch(function (error) {
       add_fail_text();
       console.error('Error while parsing page:', error);
@@ -151,7 +150,6 @@ function display_courses(courses) {
   // Populate table with course data
   courses.forEach(course => {
     const row = document.createElement('tr');
-
     //create checkbox
     const checkboxCell = document.createElement('td');
     const checkbox = document.createElement('input');
@@ -354,19 +352,6 @@ function display_gpa(courses) {
   gradeCell.classList.add('table-grade');
   row.appendChild(gradeCell);
 
-
-  
-  // make a button that when pressed calls the function parse_courses_from_html
-  // const button = document.createElement('button');
-  // button.textContent = "Recalculate";
-  // button.classList.add('recalculate-butt');
-  // button.onclick = function () {
-  //   let courses = parse_courses_from_html();
-  //   console.log("courses:", courses);
-  //   display_gpa(courses);
-  // }
-  // dateCell.appendChild(button);
-
   // make a button that when prcessed creates a new row where the name, scope and grade are editable
   const dateCell = document.createElement('td');
   const button = document.createElement('button');
@@ -379,47 +364,14 @@ function display_gpa(courses) {
   }
 
   dateCell.appendChild(button);
-  
-  
   row.appendChild(dateCell);
-
   table.appendChild(row);
 
-}
-
-
-function parse_courses_from_html() {
-  let courses = []
-  let table = document.getElementById('course-table');
-  let rows = table.rows;
-  for (let i = 1; i < rows.length; i++) {
-    let row = rows[i];
-    if (!row.cells[1].textContent) {
-      continue;
-    }
-
-    let is_included = row.cells[0].querySelector('input[type="checkbox"]').checked;
-
-    let course = {
-      id: parseInt(row.cells[1].textContent),
-      name: row.cells[2].textContent,
-      scope: row.cells[3].textContent,
-      grade: row.cells[4].textContent,
-      is_graded: ["A", "B", "C", "D", "E", "Fx", "F"].includes(row.cells[4].textContent),
-      is_included: is_included,
-      date: row.cells[5].textContent,
-      note: "",
-    }
-    courses.push(course);
-  }
-  console.log("Selected courses:", courses);
-  return courses;
 }
 
 function add_fail_text() {
   let div = document.getElementById('error-text');
   div.classList.add("calculator-box");
   div.innerHTML = "Failed to parse courses from pdf. Please check that the pdf is in the correct format and try again. \
-  You can download your grade report from: <a href='https://www.student.ladok.se/student/app/studentwebb/intyg'>ladok</a> \
-  Make sure the type is 'Official transcript of records' and the language is 'English', do not check any checkbox under  the 'Include' section.";
+  Make sure the type is 'Official transcript of records' and the language is 'English', do not check any checkbox under the 'Include' section.";
 }

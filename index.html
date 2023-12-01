@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>PDF Table Extraction</title>
+    <title>GPA Calculator</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -15,11 +16,16 @@
     <div class="calculator-box">
       Calculate average GPA at KTH without having to give you ladok login to anyone. 
       Just upload your grade report as a pdf and you will get your average grade.
-    
+      You can download your grade report from <a href='https://www.student.ladok.se/student/app/studentwebb/intyg'>ladok</a>. 
+      The calcuations are based on the 
+      <a href='https://www.kth.se/en/student/studier/utlandsstudier/utbyte/behorighet-och-urval-for-utbytesstudier-1.1090201'>guidelines from KTH.</a>
       You can add courses, and change existing grades, if you want to simulate a result.
+
+      If you have any issues, questions, or feedback, please create an issue on <a href='https://github.com/IsakNyberg/kth-gpa-calculator'>github</a>.
 
       <div id="fileUploader" class="uploader">
         <label for="fileInput">Upload Grade Report</label>
+        <label for="fileInput">Drop your file here</label>
         <input type="file" id="fileInput" style="display: none;">
       </div> 
       <div id="error-text"></div>
