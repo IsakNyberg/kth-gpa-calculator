@@ -53,6 +53,13 @@ function parse_pdf(pdf) {
       add_fail_text();
       return;
     }
+    // update the counter to count the courses correctly
+    let counter = 0;
+    for (let course of courses) {
+      counter++;
+      course.id = counter;
+    }
+
     display_courses(courses);
     display_gpa(courses);
   });
