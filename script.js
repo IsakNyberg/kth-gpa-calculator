@@ -373,6 +373,7 @@ function display_gpa(courses) {
 }
 
 var previousSort = null;
+var ascending = true;
 function sortTable(courses, headerText) {
   let index = 0;
   switch (headerText) {
@@ -407,11 +408,14 @@ function sortTable(courses, headerText) {
     }
     return 0;
   });
-  if (previousSort == index) {
+  if (previousSort == index && ascending) {
+    ascending = false;
     courses.reverse();
+  } else {
+    ascending = true;
   }
   previousSort = index;
-  console.log("Sorting table by:", headerText, courses );
+  console.log("Sorting table by:", headerText, courses, ascending);
   display_courses(courses);
   display_gpa(courses);
 }
