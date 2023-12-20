@@ -67,13 +67,20 @@ function parse_pdf(pdf) {
 function parse_page(page) {
   return page.getTextContent()
     .then(function (textContent) {
-      let table_headers = ["name", "scope", "grade", "date", "note"]
+      let table_headers = [
+        ("name", "benämning"),
+        ("scope", "omfattning"),
+        ("grade", "betyg"),
+        ("date", "datum"),
+        ("note", "not"),
+      ]
       let courses = []
       for (let item of textContent.items) {
         if (table_headers.length == 0 && item.height == 10) {
           courses.push(item)
-        }
-        if (item.str.toLowerCase() == table_headers[0]) {
+        } else if (table_headers.length != 0 && 
+          table_headers[0].includes(item.str.toLowerCase())
+        ) {
           table_headers.shift();
         }
       }
