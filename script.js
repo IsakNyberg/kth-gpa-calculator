@@ -14,13 +14,11 @@ fileUploader.addEventListener('drop', (e) => {
   e.preventDefault();
   fileUploader.classList.remove('dragover');
   const files = e.dataTransfer.files;
-  console.log(files);
   upload_file(files[0]);
 });
 
 fileInput.addEventListener('change', (e) => {
   const file = e.target.files[0];
-  console.log(file);
   upload_file(file);
 });
 
@@ -34,16 +32,14 @@ function upload_file(file) {
     pdfjsLib.getDocument(fileArray).promise.then(parse_pdf);
   };
   reader.readAsArrayBuffer(file);
-}
+};
 
 function parse_pdf(pdf) {
   var totalPageCount = pdf.numPages;
   var promises = [];
   for (var currentPage = 1; currentPage <= totalPageCount; currentPage++) {
     var page = pdf.getPage(currentPage);
-    promises.push(
-      page.then(parse_page),
-    );
+    promises.push(page.then(parse_page));
   }
 
   return Promise.all(promises).then(function (pages) {
@@ -54,6 +50,15 @@ function parse_pdf(pdf) {
       return;
     }
     // update the counter to count the courses correctly
+    courses.sort(function (a, b) {
+      if (a.date < b.date) {
+        return -1;
+      }
+      if (a.date > b.date) {
+        return 1;
+      }
+      return 0;
+    });
     let counter = 0;
     for (let course of courses) {
       counter++;
@@ -63,25 +68,28 @@ function parse_pdf(pdf) {
     display_courses(courses);
     display_gpa(courses);
   });
-}
+};
+
 function parse_page(page) {
   return page.getTextContent()
     .then(function (textContent) {
       let table_headers = [
-        ("name", "benämning"),
-        ("scope", "omfattning"),
-        ("grade", "betyg"),
-        ("date", "datum"),
-        ("note", "not"),
-      ]
-      let courses = []
+        ["name", "benämning"],
+        ["scope", "omfattning"],
+        ["grade", "betyg"],
+        ["date", "datum"],
+        ["note", "not"],
+      ];
+      let courses = [];
       for (let item of textContent.items) {
-        if (table_headers.length == 0 && item.height == 10) {
-          courses.push(item)
-        } else if (table_headers.length != 0 && 
-          table_headers[0].includes(item.str.toLowerCase())
-        ) {
-          table_headers.shift();
+        if (table_headers.length == 0) {
+          if (item.height == 10) {
+            courses.push(item);
+          }
+        } else {
+          if (table_headers[0].includes(item.str.toLowerCase())) {
+            table_headers.shift();
+          }
         }
       }
       return courses;
@@ -90,7 +98,7 @@ function parse_page(page) {
       // group by row
       const groupedItems = {};
       courses.forEach(item => {
-        const h = item.transform[5];
+        const h = Math.round(item.transform[5]);
         if (!groupedItems[h]) {
           groupedItems[h] = [];
         }
@@ -127,15 +135,14 @@ function parse_page(page) {
           note: item[5].str,
         });
       }
-      console.log("coureses found:", objects);
+      console.log("courses found on page:", objects);
       return objects;
     })
     .catch(function (error) {
       add_fail_text();
       console.error('Error while parsing page:', error);
     });
-}
-
+};
 
 function display_courses(courses) {
   const coursesContainer = document.getElementById('courses-container');
@@ -209,7 +216,7 @@ function display_courses(courses) {
   coursesContainer.appendChild(table);
 
   return courses;
-}
+};
 
 function add_course(courses) {
   var course = {
@@ -221,7 +228,7 @@ function add_course(courses) {
     is_included: true,
     date: "",
     note: "",
-  }
+  };
   courses.push(course);
 
   const table = document.getElementById('course-table');
@@ -230,14 +237,14 @@ function add_course(courses) {
   let update = function () {
     // change course object
     course.id = parseInt(row.cells[1].textContent),
-    course.name = row.cells[2].textContent,
-    course.scope = row.cells[3].textContent,
-    course.grade = row.cells[4].textContent,
-    course.is_graded = ["A", "B", "C", "D", "E", "Fx", "F"].includes(row.cells[4].textContent),
-    course.is_included = row.cells[0].querySelector('input[type="checkbox"]').checked,
-    course.date = row.cells[5].textContent,
-    course.note = "",
-    console.log("New/updated course:", course);
+      course.name = row.cells[2].textContent,
+      course.scope = row.cells[3].textContent,
+      course.grade = row.cells[4].textContent,
+      course.is_graded = ["A", "B", "C", "D", "E", "Fx", "F"].includes(row.cells[4].textContent),
+      course.is_included = row.cells[0].querySelector('input[type="checkbox"]').checked,
+      course.date = row.cells[5].textContent,
+      course.note = "",
+      console.log("New/updated course:", course);
 
     if (!["A", "B", "C", "D", "E", "Fx", "F"].includes(row.cells[4].textContent)) {
       console.log("Invalid course grade:", course, row.cells[4].textContent);
@@ -295,11 +302,10 @@ function add_course(courses) {
   const dateCell = document.createElement('td');
   dateCell.textContent = "";
   row.appendChild(dateCell);
-  
+
   // append row to second to last row
   table.insertBefore(row, table.rows[table.rows.length - 1]);
-  
-}
+};
 
 function display_gpa(courses) {
   console.log("Calculating gpa for courses:", courses);
@@ -376,8 +382,7 @@ function display_gpa(courses) {
   dateCell.appendChild(button);
   row.appendChild(dateCell);
   table.appendChild(row);
-
-}
+};
 
 var previousSort = null;
 var ascending = true;
@@ -425,7 +430,7 @@ function sortTable(courses, headerText) {
   console.log("Sorting table by:", headerText, courses, ascending);
   display_courses(courses);
   display_gpa(courses);
-}
+};
 
 function add_fail_text() {
   let div = document.getElementById('error-text');
@@ -442,4 +447,4 @@ function add_fail_text() {
   setTimeout(function () {
     div.style.backgroundColor = "white";
   }, 600);
-}
+};
