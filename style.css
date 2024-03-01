@@ -5,6 +5,7 @@ body {
     background-color: #eeeeee; /* Lighter background */
     font-family: Arial, sans-serif;
     color: #222831; /* Dark text color for all text */
+    scroll-behavior: smooth; /* Smooth scrolling */
 }
 
 .uploader {

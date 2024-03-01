@@ -2,40 +2,42 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>GPA Calculator</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>GPA Calculator</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.6.347/build/pdf.min.js"></script>
   <script type="module" src="script.js"></script>
-  
+
   <div style="display: row; justify-content: center;">
     <div class="calculator-box">
-        <img src="logo.png" alt="Website Logo" style="width: 50%;">
-        <div>
-          Determine your KTH average GPA securely without sharing your Ladok login details. 
-          Simply upload your grade report as a PDF, and receive your GPA instantly. 
-          Access your grade report from Ladok's <a href='https://www.student.ladok.se/student/app/studentwebb/intyg'>website</a>. 
-          The calculations adhere to KTH's 
-          <a href='https://www.kth.se/en/student/studier/utlandsstudier/utbyte/behorighet-och-urval-for-utbytesstudier-1.1090201'>guidelines</a>.
-          Feel free to add courses or modify grades to simulate potential outcomes. 
-          Rest assured, all computations occur locally in your browser without any data sent to external servers. 
-          For inquiries, feedback, or support, please create an issue on <a href='https://github.com/IsakNyberg/kth-gpa-calculator'>GitHub</a>.
-        </div>
+      <img src="logo.png" alt="Website Logo" style="width: 50%;">
+      <div>
+        Determine your GPA securely without sharing your Ladok login details.
+        Simply upload your grade report to see your GPA.
+        You can find your grade report on <a
+          href='https://www.student.ladok.se/student/app/studentwebb/intyg'>Ladok</a>.
+        <br>
+        The calculations use KTH's
+        <a
+          href='https://www.kth.se/en/student/studier/utlandsstudier/utbyte/behorighet-och-urval-for-utbytesstudier-1.1090201'>guidelines</a>.
+        All computations occur locally in your browser and no data is sent anywhere.
+        For inquiries, feedback, or support, please create an issue on <a
+          href='https://github.com/IsakNyberg/kth-gpa-calculator'>GitHub</a>.
+      </div>
       <div id="fileUploader" class="uploader">
         <label for="fileInput">Upload Grade Report</label>
         <label for="fileInput">Drop your file here</label>
         <input type="file" id="fileInput" style="display: none;">
-      </div> 
+      </div>
       <div id="error-text"></div>
     </div>
 
     <div id="courses-container" style="display: flex; justify-content: center;"></div>
   </div>
-    
 </body>
 
 </html>

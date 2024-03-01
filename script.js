@@ -67,6 +67,8 @@ function parse_pdf(pdf) {
 
     display_courses(courses);
     display_gpa(courses);
+    // scroll to bottom of page
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
   });
 };
 
