@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 
 <head>
   <meta charset="UTF-8">
-  <title>GPA Calculator</title>
+  <title>Snittbetygsräknare</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -14,28 +14,28 @@
 
   <div style="display: row; justify-content: center;">
     <div class="calculator-box">
-      <img src="logo.png" alt="Website Logo" style="width: 50%;">
+      <img src="logo.png" alt="Webbplatslogotyp" style="width: 50%;">
       <div>
-        Determine your GPA securely without sharing your Ladok login details.
-        Simply upload your grade report to see your GPA.
-        You can find your grade report on <a
+        Räkna ut ditt snittbetyg från KTH säkert utan att behöva dela dina Ladok-inloggningsuppgifter.
+        Ladda helt enkelt upp ditt betygsutdrag för att se ditt snittbetyg.
+        Du hittar ditt betygsutdrag på <a
           href='https://www.student.ladok.se/student/app/studentwebb/intyg'>Ladok</a>.
         <br>
-        The calculations use KTH's
+        Beräkningarna använder KTH:s
         <a
-          href='https://www.kth.se/en/student/studier/utlandsstudier/utbyte/behorighet-och-urval-for-utbytesstudier-1.1090201'>guidelines</a>.
-        All computations occur locally in your browser and no data is sent anywhere.
-        For inquiries, feedback, or support, please create an issue on <a
+          href='https://www.kth.se/en/student/studier/utlandsstudier/utbyte/behorighet-och-urval-for-utbytesstudier-1.1090201'>riktlinjer</a>.
+        Alla beräkningar sker lokalt i din webbläsare och ingen data skickas någonstans.
+        För frågor, feedback eller support, vänligen skapa ett ärende på <a
           href='https://github.com/IsakNyberg/kth-gpa-calculator'>GitHub</a>.
       </div>
       <div id="fileUploader" class="uploader">
-        <label for="fileInput">Upload Grade Report</label>
-        <label for="fileInput">Drop your file here</label>
+        <label for="fileInput">Ladda upp betygsutdrag</label>
+        <label for="fileInput">Släpp din fil här</label>
         <input type="file" id="fileInput" style="display: none;">
       </div>
       <div style="text-align: right; margin-top: 10px;">
-        <a href="/se.html">
-          <button style="font-size: 14px;">🇸🇪</button>
+        <a href="/index.html">
+          <button style="font-size: 14px;">🇺🇸🇬🇧</button>
         </a>
       </div>
       <div id="error-text"></div>
