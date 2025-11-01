@@ -2,16 +2,16 @@ import Course from './Course.js';
 
 export default class CourseList {
   constructor(courses = []) {
-    // ensure we store Course instances
-    this.courses = courses.map(c => c);
+    this.courses = [];
+    courses.forEach(c => this.add(c));
+    this.sortBy('date', true);
+    this.resetIndexes();
   }
 
-  // number of courses
   get length() {
     return this.courses.length;
   }
 
-  // Add a Course instance or plain object
   add(course) {
     if (!(course instanceof Course)) {
       throw new Error('Argument must be an instance of Course');
@@ -21,15 +21,17 @@ export default class CourseList {
     return course;
   }
 
-  fromArray(arr) {
-    arr.forEach(c => this.add(c));
-  }
-
   empty() {
     this.courses = [];
   }
 
-  addCustomCourse() {
+  resetIndexes() {
+    this.courses.forEach((c, index) => {
+      c.id = index + 1;
+    });
+  }
+
+  addCustomCourse(gradeTable) {
     const course = new Course({
       id: this.courses.length + 1,
       name: 'Custom Course',
@@ -38,7 +40,7 @@ export default class CourseList {
       date: '',
       note: 'Custom',
       is_custom: true,
-    });
+    }, gradeTable);
     this.courses.push(course);
     return course;
   }
@@ -70,7 +72,7 @@ export default class CourseList {
     }, 0);
   }
 
-  // Counted credits (only included courses with valid grade)
+  // courses with valid grade and included in GPA calculation
   countedCredits() {
     return this.courses.reduce((s, c) => {
       const v = c.credits;
@@ -78,7 +80,6 @@ export default class CourseList {
     }, 0);
   }
 
-  // Average GPA using gradeValue and counted credits
   averageGpa() {
     const totals = this.courses.reduce((acc, c) => {
       const v = c.credits;
@@ -89,103 +90,6 @@ export default class CourseList {
       return acc;
     }, { counted: 0, total: 0 });
     return totals.counted === 0 ? 0 : totals.total / totals.counted;
-  }
-
-
-  // Replace internal array
-  setAll(courses) {
-    this.courses = courses.map(c => (c));
-  }
-
-  // Build and return a table HTMLElement representing the courses list.
-  // The returned element is not automatically inserted into the DOM.
-  displayCoursesElement() {
-    const table = document.createElement('table');
-    table.classList.add('course-table');
-    table.id = 'course-table';
-
-    // Create table headers
-    const headers = ['Include', 'Id', 'Course name', 'Scope', 'Grade', 'Date'];
-    const headerRow = document.createElement('tr');
-    headers.forEach(headerText => {
-      const headerCell = document.createElement('th');
-      headerCell.onclick = () => {
-        let field;
-        switch (headerText) {
-          case 'Id': field = 'id'; break;
-          case 'Course name': field = 'name'; break;
-          case 'Scope': field = 'scope'; break;
-          case 'Grade': field = 'grade'; break;
-          case 'Date': field = 'date'; break;
-          case 'Include': field = 'is_included'; break;
-          default: field = null;
-        }
-        if (!field) return;
-        // toggle sort order if same field
-        if (this._lastSortField === field) {
-          this._lastAscending = !this._lastAscending;
-        } else {
-          this._lastSortField = field;
-          this._lastAscending = true;
-        }
-        this.sortBy(field, this._lastAscending);
-        // replace current table with a newly built one
-        const newTable = this.displayCoursesElement();
-        table.replaceWith(newTable);
-        // try to update GPA display if global function exists
-        if (typeof display_gpa === 'function') display_gpa(this.courses);
-      };
-      headerCell.textContent = headerText;
-      headerRow.appendChild(headerCell);
-    });
-    table.appendChild(headerRow);
-
-    // Populate table with course data
-    this.courses.forEach(course => {
-      const row = document.createElement('tr');
-
-      const checkboxCell = document.createElement('td');
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.checked = course.is_included;
-      checkbox.disabled = !course.is_graded;
-      checkbox.classList.add('table-checkbox');
-      checkbox.onchange = () => {
-        course.is_included = checkbox.checked;
-        if (typeof display_gpa === 'function') display_gpa(this.courses);
-      };
-      checkboxCell.appendChild(checkbox);
-      row.appendChild(checkboxCell);
-
-      const idCell = document.createElement('td');
-      idCell.textContent = course.id;
-      idCell.classList.add('table-id');
-      row.appendChild(idCell);
-
-      const nameCell = document.createElement('td');
-      nameCell.textContent = course.name;
-      nameCell.classList.add('table-name');
-      row.appendChild(nameCell);
-
-      const scopeCell = document.createElement('td');
-      scopeCell.textContent = course.scope;
-      scopeCell.classList.add('table-scope');
-      row.appendChild(scopeCell);
-
-      const gradeCell = document.createElement('td');
-      gradeCell.textContent = course.grade;
-      gradeCell.classList.add('table-grade');
-      row.appendChild(gradeCell);
-
-      const dateCell = document.createElement('td');
-      dateCell.textContent = course.date;
-      dateCell.classList.add('table-date');
-      row.appendChild(dateCell);
-
-      table.appendChild(row);
-    });
-
-    return table;
   }
 }
 

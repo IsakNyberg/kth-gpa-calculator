@@ -4,6 +4,15 @@ import CourseList from './CourseList.js';
 let COURSE_LIST = new CourseList([]);
 window.courseList = COURSE_LIST;
 
+let GRADE_TABLE = {
+  'A': 5.0,
+  'B': 4.5,
+  'C': 4.0,
+  'D': 3.5,
+  'E': 3.0,
+  'F': 0.0,
+};
+
 const fileUploader = document.getElementById('fileUploader');
 const fileInput = document.getElementById('fileInput');
 
@@ -49,13 +58,14 @@ function parse_pdf(pdf) {
   }
 
   return Promise.all(promises).then(function (pages) {
-    COURSE_LIST.fromArray(pages.flat());
+    COURSE_LIST = new CourseList(pages.flat());
+    window.courseList = COURSE_LIST;
     if (COURSE_LIST.length === 0) {
       console.log("No courses found");
       add_fail_text();
       return;
     }
-    const tableEl = COURSE_LIST.displayCoursesElement();
+    const tableEl = displayCoursesElement(COURSE_LIST);
     const coursesContainer = document.getElementById('courses-container');
     coursesContainer.innerHTML = '';
     coursesContainer.appendChild(tableEl);
@@ -116,7 +126,7 @@ async function parse_pdf_page(page) {
       grade: item[3].str,
       date: item[4].str,
       note: item[5].str,
-    }));
+    }, GRADE_TABLE));
 
     console.log("courses found on page:", objects);
     return objects;
@@ -127,124 +137,13 @@ async function parse_pdf_page(page) {
   }
 };
 
-// Rendering is handled by CourseList.displayCoursesElement and called directly after parsing.
-
-function add_course(courses) {
-  const course = new Course({
-    id: courses.length + 1,
-    name: "New course",
-    scope: "0",
-    grade: "A",
-    is_graded: true,
-    is_included: true,
-    is_custom: true,
-    date: "",
-    note: "",
-  });
-  courses.push(course);
-
-  const table = document.getElementById('course-table');
-  const row = document.createElement('tr');
-
-  let update = function () {
-    // change course object (Course instance)
-    course.id = parseInt(row.cells[1].textContent);
-    course.name = row.cells[2].textContent;
-    course.scope = row.cells[3].textContent;
-    course.grade = row.cells[4].textContent;
-    course.is_graded = ["A", "B", "C", "D", "E", "Fx", "F"].includes(row.cells[4].textContent);
-    course.is_included = row.cells[0].querySelector('input[type="checkbox"]').checked;
-    course.date = row.cells[5].textContent;
-    course.note = "";
-    console.log("New/updated course:", course);
-
-    if (!["A", "B", "C", "D", "E", "Fx", "F"].includes(row.cells[4].textContent)) {
-      console.log("Invalid course grade:", course, row.cells[4].textContent);
-      row.cells[4].style.backgroundColor = "red";
-    } else {
-      row.cells[4].style.backgroundColor = "white";
-    }
-
-    if (isNaN(parseFloat(row.cells[3].textContent.replace(',', '.')))) {
-      console.log("Invalid course scope:", course, row.cells[3].textContent);
-      row.cells[3].style.backgroundColor = "red";
-    } else {
-      row.cells[3].style.backgroundColor = "white";
-    }
-
-    display_gpa(courses);
-  }
-
-  const checkboxCell = document.createElement('td');
-  const checkbox = document.createElement('input');
-  checkbox.type = "checkbox";
-  checkbox.checked = true;
-  checkbox.disabled = false;
-  checkbox.classList.add('table-checkbox');
-  checkbox.onchange = update;
-  checkboxCell.appendChild(checkbox);
-  checkboxCell.classList.add('table-checkbox');
-  row.appendChild(checkboxCell);
-
-
-  const idCell = document.createElement('td');
-  idCell.textContent = courses.length + 1;
-  idCell.classList.add('table-id');
-  row.appendChild(idCell);
-  const nameCell = document.createElement('td');
-  nameCell.textContent = "New course";
-  nameCell.contentEditable = true;
-  nameCell.classList.add('table-name');
-  row.appendChild(nameCell);
-
-  const scopeCell = document.createElement('td');
-  scopeCell.textContent = "0";
-  scopeCell.contentEditable = true;
-  scopeCell.classList.add('table-scope');
-  scopeCell.addEventListener('input', update);
-  row.appendChild(scopeCell);
-
-  const gradeCell = document.createElement('td');
-  gradeCell.textContent = "A";
-  gradeCell.contentEditable = true;
-  gradeCell.classList.add('table-grade');
-  gradeCell.addEventListener('input', update);
-  row.appendChild(gradeCell);
-
-  const dateCell = document.createElement('td');
-  dateCell.textContent = "";
-  row.appendChild(dateCell);
-
-  // append row to second to last row
-  table.insertBefore(row, table.rows[table.rows.length - 1]);
-};
-
 function display_gpa(courses) {
   console.log("Calculating gpa for courses:", courses);
-  let total_credits = 0;
-  let counted_credits = 0;
-  let total_gpa = 0;
-  let average_gpa = 0;
-  // grade mapping is handled by Course.gradeValue
-  for (let course of courses) {
-    const credits = course.credits;
-    if (isNaN(credits)) {
-      console.log("Unknown scope:", course);
-      continue;
-    }
-    total_credits += credits;
+  const gpa = COURSE_LIST.averageGpa();
+  const total_credits = COURSE_LIST.totalCredits();
+  const counted_credits = COURSE_LIST.countedCredits();
 
-    const gpa = course.gradeValue;
-    if (gpa !== null && course.is_included) {
-      counted_credits += credits;
-      total_gpa += gpa * credits;
-    } else if (gpa === null) {
-      console.log("Invalid course grade:", gpa, course);
-    }
-  }
-  average_gpa = total_gpa / counted_credits;
-
-  console.log("total credits:", total_credits, "counted credits:", counted_credits, "gpa:", average_gpa);
+  console.log("total credits:", total_credits, "counted credits:", counted_credits, "gpa:", gpa);
 
   const table = document.getElementById('course-table');
   if (table.rows[table.rows.length - 1].cells[2].textContent == "Total HP and GPA") {
@@ -268,7 +167,7 @@ function display_gpa(courses) {
   row.appendChild(scopeCell);
 
   const gradeCell = document.createElement('td');
-  gradeCell.textContent = average_gpa.toFixed(2);
+  gradeCell.textContent = gpa.toFixed(2);
   gradeCell.classList.add('table-grade');
   row.appendChild(gradeCell);
 
@@ -278,9 +177,11 @@ function display_gpa(courses) {
   button.textContent = "Add course";
   button.classList.add('add-course-butt');
   button.onclick = function () {
-    console.log("Add course pressed", courses);
-    add_course(courses);
-    display_gpa(courses);
+    COURSE_LIST.addCustomCourse(GRADE_TABLE);
+    const container = document.getElementById('courses-container');
+    container.innerHTML = '';
+    container.appendChild(displayCoursesElement(COURSE_LIST));
+    display_gpa(COURSE_LIST.courses);
   }
 
   dateCell.appendChild(button);
@@ -306,3 +207,124 @@ function add_fail_text() {
     div.style.backgroundColor = "white";
   }, 600);
 };
+
+// Move rendering into script.js: create a table element for a CourseList
+function displayCoursesElement(courseList) {
+  const table = document.createElement('table');
+  table.classList.add('course-table');
+  table.id = 'course-table';
+
+  // Create table headers
+  const headers = ['Include', 'Id', 'Course name', 'Scope', 'Grade', 'Date'];
+  const headerRow = document.createElement('tr');
+  headers.forEach(headerText => {
+    const headerCell = document.createElement('th');
+    headerCell.onclick = () => {
+      let field;
+      switch (headerText) {
+        case 'Id': field = 'id'; break;
+        case 'Course name': field = 'name'; break;
+        case 'Scope': field = 'scope'; break;
+        case 'Grade': field = 'grade'; break;
+        case 'Date': field = 'date'; break;
+        case 'Include': field = 'is_included'; break;
+        default: field = null;
+      }
+      if (!field) return;
+      // toggle sort order if same field
+      if (courseList._lastSortField === field) {
+        courseList._lastAscending = !courseList._lastAscending;
+      } else {
+        courseList._lastSortField = field;
+        courseList._lastAscending = true;
+      }
+      courseList.sortBy(field, courseList._lastAscending);
+      // replace current table with a newly built one
+      const newTable = displayCoursesElement(courseList);
+      table.replaceWith(newTable);
+    };
+    headerCell.textContent = headerText;
+    headerRow.appendChild(headerCell);
+  });
+  table.appendChild(headerRow);
+
+  courseList.courses.forEach(course => {
+    const row = document.createElement('tr');
+
+    const checkboxCell = document.createElement('td');
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = course.is_included;
+    checkbox.disabled = !course.is_graded;
+    checkbox.classList.add('table-checkbox');
+    checkbox.onchange = () => {
+      course.is_included = checkbox.checked;
+      if (typeof display_gpa === 'function') display_gpa(courseList.courses);
+    };
+    checkboxCell.appendChild(checkbox);
+    row.appendChild(checkboxCell);
+
+    const idCell = document.createElement('td');
+    idCell.textContent = course.id;
+    idCell.classList.add('table-id');
+    row.appendChild(idCell);
+
+    const nameCell = document.createElement('td');
+    nameCell.textContent = course.name;
+    nameCell.classList.add('table-name');
+    // editable if custom
+    if (course.is_custom) {
+      nameCell.contentEditable = true;
+      nameCell.addEventListener('input', () => {
+        course.name = nameCell.textContent;
+        display_gpa(courseList.courses);
+      });
+    }
+    row.appendChild(nameCell);
+
+    const scopeCell = document.createElement('td');
+    scopeCell.textContent = course.scope;
+    scopeCell.classList.add('table-scope');
+    if (course.is_custom) {
+      scopeCell.contentEditable = true;
+      scopeCell.addEventListener('input', () => {
+        course.scope = scopeCell.textContent;
+        if (isNaN(parseFloat(String(course.scope).replace(',', '.')))) {
+          scopeCell.style.backgroundColor = 'red';
+        } else {
+          scopeCell.style.backgroundColor = 'white';
+        }
+        display_gpa(courseList.courses);
+      });
+    }
+    row.appendChild(scopeCell);
+
+    const gradeCell = document.createElement('td');
+    gradeCell.textContent = course.grade;
+    gradeCell.classList.add('table-grade');
+    if (course.is_custom) {
+      gradeCell.contentEditable = true;
+      gradeCell.addEventListener('input', () => {
+        course.grade = gradeCell.textContent;
+        course.is_graded = course.isValidGrade();
+        checkbox.disabled = !course.is_graded;
+        if (!course.is_graded) {
+          gradeCell.style.backgroundColor = 'red';
+        } else {
+          gradeCell.style.backgroundColor = 'white';
+        }
+        display_gpa(courseList.courses);
+      });
+    }
+    row.appendChild(gradeCell);
+
+    const dateCell = document.createElement('td');
+    dateCell.textContent = course.date;
+    dateCell.classList.add('table-date');
+    row.appendChild(dateCell);
+
+    table.appendChild(row);
+  });
+
+  return table;
+}
