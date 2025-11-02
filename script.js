@@ -5,12 +5,19 @@ let COURSE_LIST = new CourseList([]);
 window.courseList = COURSE_LIST;
 
 let GRADE_TABLE = {
+  // A - F
   'A': 5.0,
   'B': 4.5,
   'C': 4.0,
   'D': 3.5,
   'E': 3.0,
-  'F': 0.0,
+  // 5 - 3
+  '5': 5.0,
+  '4': 4.0,
+  '3': 3.0,
+  // G - VG
+  'VG': 5.0,
+  'G': 3.0,
 };
 
 const fileUploader = document.getElementById('fileUploader');
@@ -108,16 +115,18 @@ async function parse_pdf_page(page) {
       groupedItems[h].push(item);
     });
 
-    // keep only rows with 6 items (expected columns)
+    // keep only rows with 6 or 7 items
     const filteredItems = [];
     for (let key in groupedItems) {
-      if (groupedItems[key].length == 6) {
+      if (groupedItems[key].length == 6 || groupedItems[key].length == 7) {
+        if (groupedItems[key].length == 7) {
+          groupedItems[key].splice(0, 1);
+        }
         filteredItems.push(groupedItems[key]);
       } else {
         console.log('Item with length != 6 found:', groupedItems[key]);
       }
     }
-
     // map to Course objects
     const objects = filteredItems.map(item => new Course({
       id: null,
@@ -189,12 +198,13 @@ function display_gpa(courses) {
   table.appendChild(row);
 };
 
-// Sorting is handled inside CourseList now
-
 function add_fail_text() {
   let div = document.getElementById('error-text');
   div.classList.add("calculator-box");
-  div.innerHTML = "Failed to parse courses from pdf. Please check that the pdf is in the correct format and try again. Make sure the type is 'Official transcript of records' and the language is 'English', do not check any checkbox under the 'Include' section.".replace(/'(.*?)'/g, '<i>$1</i>');
+  div.innerHTML = "Failed to parse courses from pdf. Please check that the pdf \
+  is in the correct format and try again. Make sure the type is 'Official \
+  transcript of records' and the language is 'English', do not check any \
+  checkbox under the 'Include' section.".replace(/'(.*?)'/g, '<i>$1</i>');
   // make the div flash red
   div.style.backgroundColor = "#FAA0A0"
   setTimeout(function () {
@@ -242,6 +252,8 @@ function displayCoursesElement(courseList) {
       // replace current table with a newly built one
       const newTable = displayCoursesElement(courseList);
       table.replaceWith(newTable);
+      // ensure the GPA summary/add row is appended for the new table
+      display_gpa(courseList.courses);
     };
     headerCell.textContent = headerText;
     headerRow.appendChild(headerCell);
@@ -259,7 +271,7 @@ function displayCoursesElement(courseList) {
     checkbox.classList.add('table-checkbox');
     checkbox.onchange = () => {
       course.is_included = checkbox.checked;
-      if (typeof display_gpa === 'function') display_gpa(courseList.courses);
+      display_gpa(courseList.courses);
     };
     checkboxCell.appendChild(checkbox);
     row.appendChild(checkboxCell);

@@ -10,11 +10,10 @@ export default class Course {
       note = '',
       is_custom = false,
     } = data;
-
     this.id = id;
     this.name = name;
-    this.scope = scope
-    this.grade = grade;
+    this.scope = parseFloat(String(scope).replace(',', '.'));
+    this.grade = grade; this.grade = grade;
     this.gradeTable = gradeTable;
     this.is_graded = !!Object.prototype.hasOwnProperty.call(this.gradeTable, String(this.grade));
     this.is_included = this.is_graded || is_custom;
