@@ -1,8 +1,6 @@
 import Course from './Course.js';
 import CourseList from './CourseList.js';
 
-let COURSE_LIST = new CourseList([]);
-window.courseList = COURSE_LIST;
 
 let GRADE_TABLE = {
   // A - F
@@ -19,6 +17,9 @@ let GRADE_TABLE = {
   'VG': 5.0,
   'G': 3.0,
 };
+
+let COURSE_LIST = new CourseList([], GRADE_TABLE);
+window.courseList = COURSE_LIST;
 
 const fileUploader = document.getElementById('fileUploader');
 const fileInput = document.getElementById('fileInput');
@@ -65,7 +66,7 @@ function parse_pdf(pdf) {
   }
 
   return Promise.all(promises).then(function (pages) {
-    COURSE_LIST = new CourseList(pages.flat());
+    COURSE_LIST = new CourseList(pages.flat(), GRADE_TABLE);
     window.courseList = COURSE_LIST;
     if (COURSE_LIST.length === 0) {
       console.log("No courses found");
@@ -135,8 +136,7 @@ async function parse_pdf_page(page) {
       grade: item[3].str,
       date: item[4].str,
       note: item[5].str,
-    }, GRADE_TABLE));
-
+    }));
     console.log("courses found on page:", objects);
     return objects;
   } catch (error) {
@@ -150,9 +150,7 @@ function display_gpa(courses) {
   console.log("Calculating gpa for courses:", courses);
   const gpa = COURSE_LIST.averageGpa();
   const total_credits = COURSE_LIST.totalCredits();
-  const counted_credits = COURSE_LIST.countedCredits();
-
-  console.log("total credits:", total_credits, "counted credits:", counted_credits, "gpa:", gpa);
+  const included_credits = COURSE_LIST.includedCredits();
 
   const table = document.getElementById('course-table');
   if (table.rows[table.rows.length - 1].cells[2].textContent == "Total HP and GPA") {
@@ -171,7 +169,7 @@ function display_gpa(courses) {
   nameCell.classList.add('table-name');
 
   const scopeCell = document.createElement('td');
-  scopeCell.textContent = counted_credits + ' / ' + total_credits;
+  scopeCell.textContent = included_credits + ' / ' + total_credits;
   scopeCell.classList.add('table-scope');
   row.appendChild(scopeCell);
 
@@ -186,7 +184,7 @@ function display_gpa(courses) {
   button.textContent = "Add course";
   button.classList.add('add-course-butt');
   button.onclick = function () {
-    COURSE_LIST.addCustomCourse(GRADE_TABLE);
+    COURSE_LIST.addCustomCourse();
     const container = document.getElementById('courses-container');
     container.innerHTML = '';
     container.appendChild(displayCoursesElement(COURSE_LIST));
@@ -300,12 +298,13 @@ function displayCoursesElement(courseList) {
     if (course.is_custom) {
       scopeCell.contentEditable = true;
       scopeCell.addEventListener('input', () => {
-        course.scope = scopeCell.textContent;
-        if (isNaN(parseFloat(String(course.scope).replace(',', '.')))) {
-          scopeCell.style.backgroundColor = 'red';
-        } else {
-          scopeCell.style.backgroundColor = 'white';
-        }
+        course.scope = parseFloat(String(scopeCell.textContent).replace(',', '.'));
+        course.is_graded = course.applyGradeTable(courseList.gradeTable);
+        course.is_included = course.is_valid;
+
+        scopeCell.style.backgroundColor = isNaN(course.scope) ? 'red' : 'white';
+        checkbox.checked = course.is_valid;
+        checkbox.disabled = !course.is_valid;
         display_gpa(courseList.courses);
       });
     }
@@ -318,13 +317,12 @@ function displayCoursesElement(courseList) {
       gradeCell.contentEditable = true;
       gradeCell.addEventListener('input', () => {
         course.grade = gradeCell.textContent;
-        course.is_graded = course.isValidGrade();
-        checkbox.disabled = !course.is_graded;
-        if (!course.is_graded) {
-          gradeCell.style.backgroundColor = 'red';
-        } else {
-          gradeCell.style.backgroundColor = 'white';
-        }
+        course.is_graded = course.applyGradeTable(courseList.gradeTable);
+        course.is_included = course.is_valid;
+
+        gradeCell.style.backgroundColor = course.is_graded ? 'white' : 'red';
+        checkbox.checked = course.is_valid;
+        checkbox.disabled = !course.is_valid;
         display_gpa(courseList.courses);
       });
     }

@@ -1,11 +1,17 @@
 import Course from './Course.js';
 
 export default class CourseList {
-  constructor(courses = []) {
+  constructor(courses = [], gradeTable) {
+    if (!gradeTable) {
+      throw new Error('CourseList requires a grade table upon initialization');
+    }
     this.courses = [];
+    this.setGradeTable(this.gradeTable);
+    this.gradeTable = gradeTable;
     courses.forEach(c => this.add(c));
     this.sortBy('date', true);
     this.resetIndexes();
+
   }
 
   get length() {
@@ -18,6 +24,8 @@ export default class CourseList {
     }
     course.id = this.courses.length + 1;
     this.courses.push(course);
+    const is_included = course.applyGradeTable(this.gradeTable);
+    course.is_included = is_included;
     return course;
   }
 
@@ -31,7 +39,7 @@ export default class CourseList {
     });
   }
 
-  addCustomCourse(gradeTable) {
+  addCustomCourse() {
     const course = new Course({
       id: this.courses.length + 1,
       name: 'Custom Course',
@@ -40,17 +48,12 @@ export default class CourseList {
       date: '',
       note: 'Custom',
       is_custom: true,
-    }, gradeTable);
+    });
     this.courses.push(course);
+    if (this.gradeTable) course.applyGradeTable(this.gradeTable);
     return course;
   }
 
-  // Find course by id
-  findById(id) {
-    return this.courses.find(c => c.id === id) || null;
-  }
-
-  // Sort the internal array by field (id, name, scope, grade, date, is_included)
   sortBy(field, ascending = true) {
     const cmp = (a, b) => {
       const av = a[field];
@@ -64,32 +67,42 @@ export default class CourseList {
     return this.courses;
   }
 
-  // Total credits across all courses
   totalCredits() {
     return this.courses.reduce((s, c) => {
-      const v = c.credits;
-      return s + (isNaN(v) ? 0 : v);
+      const v = c.scope;
+      return s + v;
     }, 0);
   }
 
-  // courses with valid grade and included in GPA calculation
-  countedCredits() {
+  includedCredits() {
     return this.courses.reduce((s, c) => {
-      const v = c.credits;
-      return s + ((c.gradeValue !== null && c.is_included && !isNaN(v)) ? v : 0);
+      const v = c.scope_included;
+      return s + v;
     }, 0);
   }
 
   averageGpa() {
+    if (!this.gradeTable) return null;
+    this.courses.forEach((c) => c.applyGradeTable(this.gradeTable));
+
     const totals = this.courses.reduce((acc, c) => {
-      const v = c.credits;
-      if (c.gradeValue !== null && c.is_included && !isNaN(v)) {
-        acc.counted += v;
-        acc.total += c.gradeValue * v;
-      }
-      return acc;
-    }, { counted: 0, total: 0 });
-    return totals.counted === 0 ? 0 : totals.total / totals.counted;
+      const s = c.scope_graded;
+      const gv = c.grade_point_value;
+      const acc_s = acc.gradedCredits;
+      const acc_t = acc.total;
+      return {
+        gradedCredits: acc_s + s,
+        total: acc_t + gv * s,
+      };
+    }, { gradedCredits: 0, total: 0 });
+    return totals.gradedCredits === 0 ? 0 : totals.total / totals.gradedCredits;
+  }
+
+  setGradeTable(gradeTable) {
+    this.gradeTable = gradeTable || null;
+    console.log('Setting grade table:', this.gradeTable);
+    this.courses.forEach((c) => c.applyGradeTable(this.gradeTable));
+    return this.gradeTable;
   }
 }
 
