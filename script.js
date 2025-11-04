@@ -2,24 +2,50 @@ import Course from './Course.js';
 import CourseList from './CourseList.js';
 
 
-let GRADE_TABLE = {
-  // A - F
+const GRADE_TABLE_AE = {
   'A': 5.0,
   'B': 4.5,
   'C': 4.0,
   'D': 3.5,
   'E': 3.0,
-  // 5 - 3
+};
+
+const GRADE_TABLE_53 = {
   '5': 5.0,
   '4': 4.0,
   '3': 3.0,
-  // G - VG
+};
+
+const GRADE_TABLE_VG = {
   'VG': 5.0,
   'G': 3.0,
 };
 
+let GRADE_TABLE = GRADE_TABLE_AE;
+
 let COURSE_LIST = new CourseList([], GRADE_TABLE);
 window.courseList = COURSE_LIST;
+
+// Wire grade table selector UI (if present) to update the active grade table
+document.addEventListener('DOMContentLoaded', () => {
+  const select = document.getElementById('grade-table-select');
+  if (!select) return;
+  select.value = 'ae';
+  select.addEventListener('change', (e) => {
+    const v = e.target.value;
+    if (v === 'ae') GRADE_TABLE = GRADE_TABLE_AE;
+    else if (v === '53') GRADE_TABLE = GRADE_TABLE_53;
+    else if (v === 'vg') GRADE_TABLE = GRADE_TABLE_VG;
+    COURSE_LIST.setGradeTable(GRADE_TABLE);
+
+    const container = document.getElementById('courses-container');
+    container.innerHTML = '';
+    if (COURSE_LIST.length > 0) {
+      container.appendChild(displayCoursesElement(COURSE_LIST));
+      display_gpa(COURSE_LIST.courses);
+    }
+  });
+});
 
 const fileUploader = document.getElementById('fileUploader');
 const fileInput = document.getElementById('fileInput');

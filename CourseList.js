@@ -102,7 +102,9 @@ export default class CourseList {
     this.gradeTable = gradeTable || null;
     console.log('Setting grade table:', this.gradeTable);
     this.courses.forEach((c) => c.applyGradeTable(this.gradeTable));
-    return this.gradeTable;
+    this.courses.forEach((c) => {
+      c.is_included = c.is_valid;
+    });
   }
 }
 

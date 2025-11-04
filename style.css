@@ -2,10 +2,13 @@
 
 /* Updated color palette */
 body {
-    background-color: #eeeeee; /* Lighter background */
+    background-color: #eeeeee;
+    /* Lighter background */
     font-family: Arial, sans-serif;
-    color: #222831; /* Dark text color for all text */
-    scroll-behavior: smooth; /* Smooth scrolling */
+    color: #222831;
+    /* Dark text color for all text */
+    scroll-behavior: smooth;
+    /* Smooth scrolling */
 }
 
 .uploader {
@@ -13,19 +16,24 @@ body {
     padding: 20px;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Vertically align items */
-    justify-content: center; /* Horizontally center items */
+    align-items: center;
+    /* Vertically align items */
+    justify-content: center;
+    /* Horizontally center items */
     font-size: 24px;
     width: 400px;
     height: 200px;
     margin: 50px auto;
-    background-color: #eeeeee; /* Lighter background */
-    color: #676464; /* Text color */
+    background-color: #eeeeee;
+    /* Lighter background */
+    color: #676464;
+    /* Text color */
 }
 
 .uploader.dragover {
     border-color: #00adb5;
 }
+
 .course-table {
     background-color: #fff;
     border-collapse: collapse;
@@ -35,6 +43,7 @@ body {
     min-width: 400px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
+
 .course-table thead tr {
     background-color: #009879;
     color: #ffffff;
@@ -87,6 +96,7 @@ body {
 .dcourse-table tbody tr:last-of-type {
     border-bottom: 2px solid #009879;
 }
+
 .dcourse-table tbody tr.active-row {
     font-weight: bold;
     color: #009879;
@@ -98,7 +108,8 @@ body {
 }
 
 .course-table tr:hover {
-    background-color: #d3d3d3; /* Lighter background on hover */
+    background-color: #d3d3d3;
+    /* Lighter background on hover */
     color: #222831;
 }
 
@@ -116,35 +127,43 @@ body {
 .table-checkbox {
     text-align: center;
     vertical-align: middle;
-  }
-  
+    align-items: center;
+}
+
 .table-checkbox input[type="checkbox"] {
     background-color: #1a4789;
-    transform: scale(1.5); /* Increase checkbox size */
+    transform: scale(1.5);
+    /* Increase checkbox size */
 }
 
 /* Style for disabled checkbox */
 .table-checkbox input[type="checkbox"]:disabled {
     background-color: #1a4789;
-    opacity: 0.5; /* Reduce opacity to indicate disabled state */
+    opacity: 0.5;
 }
-.table-checkbox input[type="checkbox"]:checked  {
-    background-color: #1a4789; /* Checked color */
-    /* Add other styles for the checked state */
+
+.table-checkbox input[type="checkbox"]:checked {
+    background-color: #1a4789;
 }
 
 .calculator-box {
     width: 80%;
-    max-width: 600px; /* Set a maximum width for responsiveness */
+    max-width: 600px;
+    /* Set a maximum width for responsiveness */
     margin: 20px auto;
     padding: 20px;
-    background-color: #fff; /* White background */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
-    text-align: center; /* Center align text */
-    font-family: Arial, sans-serif; /* Set a font */
-    line-height: 1.5; /* Improved readability */
-  }
-  
+    background-color: #fff;
+    /* White background */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Shadow effect */
+    text-align: center;
+    /* Center align text */
+    font-family: Arial, sans-serif;
+    /* Set a font */
+    line-height: 1.5;
+    /* Improved readability */
+}
+
 .add-course-butt {
     background-color: #1a4789;
     border: none;
