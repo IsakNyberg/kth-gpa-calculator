@@ -26,6 +26,20 @@ let GRADE_TABLE = GRADE_TABLE_AE;
 let COURSE_LIST = new CourseList([], GRADE_TABLE);
 window.courseList = COURSE_LIST;
 
+
+function applyBestGradeTable(courseList) {
+  let best_table = null;
+  let best_match = -1;
+  for (let table of [GRADE_TABLE_AE, GRADE_TABLE_53, GRADE_TABLE_VG]) {
+    let match_count = courseList.setGradeTable(table);
+    if (match_count > best_match) {
+      best_match = match_count;
+      best_table = table;
+    }
+  }
+  courseList.setGradeTable(best_table);
+}
+
 // Wire grade table selector UI (if present) to update the active grade table
 document.addEventListener('DOMContentLoaded', () => {
   const select = document.getElementById('grade-table-select');
@@ -99,6 +113,7 @@ function parse_pdf(pdf) {
       add_fail_text();
       return;
     }
+    applyBestGradeTable(COURSE_LIST);
     const tableEl = displayCoursesElement(COURSE_LIST);
     const coursesContainer = document.getElementById('courses-container');
     coursesContainer.innerHTML = '';
@@ -162,7 +177,7 @@ async function parse_pdf_page(page) {
       grade: item[3].str,
       date: item[4].str,
       note: item[5].str,
-    }));
+    })).filter(c => c.name.length > 0 && !isNaN(c.scope));
     console.log("courses found on page:", objects);
     return objects;
   } catch (error) {

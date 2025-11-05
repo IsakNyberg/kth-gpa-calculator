@@ -101,10 +101,13 @@ export default class CourseList {
   setGradeTable(gradeTable) {
     this.gradeTable = gradeTable || null;
     console.log('Setting grade table:', this.gradeTable);
-    this.courses.forEach((c) => c.applyGradeTable(this.gradeTable));
+    let gradedCount = 0;
     this.courses.forEach((c) => {
+      const wasGraded = c.applyGradeTable(this.gradeTable);
+      if (wasGraded) gradedCount += 1;
       c.is_included = c.is_valid;
     });
+    return gradedCount;
   }
 }
 
