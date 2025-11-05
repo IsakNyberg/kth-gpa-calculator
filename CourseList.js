@@ -109,5 +109,29 @@ export default class CourseList {
     });
     return gradedCount;
   }
+
+  toCsv() {
+    const headers = ['Id', 'Name', 'Scope', 'Grade', 'Date', 'GradePoint'];
+    const rows = [headers.join(',')];
+    this.courses.forEach(c => {
+      const row = [
+        c.id,
+        c.name,
+        c.scope,
+        c.grade,
+        c.date,
+        c.grade_point_value,
+      ].map((value) => {
+        if (value === null || typeof value === 'undefined') return '';
+        const s = String(value);
+        if (s.includes('"') || s.includes(',') || s.includes('\n')) {
+          return '"' + s.replace(/"/g, '""') + '"';
+        }
+        return s;
+      });
+      rows.push(row.join(','));
+    });
+    return rows.join('\n');
+  }
 }
 

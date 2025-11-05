@@ -40,6 +40,29 @@ function applyBestGradeTable(courseList) {
   courseList.setGradeTable(best_table);
 }
 
+function downloadCoursesCsv(courseList, filename = 'courses.csv') {
+  const csv = courseList.toCsv();
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  // append to body to make click work in Firefox
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 100);
+}
+
+// Enable/disable the download CSV button safely
+function setDownloadButton(enabled) {
+  const btn = document.getElementById('download-csv-btn');
+  if (!btn) return;
+  btn.disabled = !enabled;
+}
+
 // Wire grade table selector UI (if present) to update the active grade table
 document.addEventListener('DOMContentLoaded', () => {
   const select = document.getElementById('grade-table-select');
@@ -59,6 +82,12 @@ document.addEventListener('DOMContentLoaded', () => {
       display_gpa(COURSE_LIST.courses);
     }
   });
+  const downloadBtn = document.getElementById('download-csv-btn');
+  if (downloadBtn) {
+    downloadBtn.addEventListener('click', () => {
+      downloadCoursesCsv(COURSE_LIST);
+    });
+  }
 });
 
 const fileUploader = document.getElementById('fileUploader');
@@ -89,6 +118,8 @@ function upload_file(file) {
   var pdfjsLib = window['pdfjs-dist/build/pdf'];
   pdfjsLib.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.6.347/build/pdf.worker.js';
   COURSE_LIST.empty();
+  // disable download until new courses are loaded
+  setDownloadButton(false);
   var reader = new FileReader();
   reader.onload = function (event) {
     var fileArray = new Uint8Array(event.target.result);
@@ -114,6 +145,8 @@ function parse_pdf(pdf) {
       return;
     }
     applyBestGradeTable(COURSE_LIST);
+    // enable download button since we have parsed courses
+    setDownloadButton(true);
     const tableEl = displayCoursesElement(COURSE_LIST);
     const coursesContainer = document.getElementById('courses-container');
     coursesContainer.innerHTML = '';
@@ -230,6 +263,7 @@ function display_gpa(courses) {
     container.innerHTML = '';
     container.appendChild(displayCoursesElement(COURSE_LIST));
     display_gpa(COURSE_LIST.courses);
+    setDownloadButton(true);
   }
 
   dateCell.appendChild(button);
